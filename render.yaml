@@ -6,8 +6,9 @@ services:
       curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
       apt-get install -y nodejs
       pip install -r requirements.txt
+      python manage.py tailwind init theme --no-input
       python manage.py tailwind install
-      npm install
+      cd theme/static_src && npm install
       python manage.py tailwind build
       python manage.py collectstatic --noinput
     startCommand: gunicorn bucket_list.wsgi:application
