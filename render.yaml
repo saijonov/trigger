@@ -2,7 +2,11 @@ services:
   - type: web
     name: bucket-list
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py tailwind install
+      python manage.py tailwind build
+      python manage.py collectstatic --noinput
     startCommand: gunicorn bucket_list.wsgi:application
     envVars:
       - key: PYTHON_VERSION
