@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Your Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div class="bg-gradient-to-r from-blue-700 to-blue-900 py-6 px-8">
+            <h1 class="text-2xl font-bold text-white">Your Profile</h1>
+        </div>
+        
+        <div class="p-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center mb-8">
+                <img src="{{ user.profile.profile_pic.url }}" alt="{{ user.username }}" class="w-32 h-32 rounded-full object-cover mr-6 mb-4 md:mb-0">
+                <div>
+                    <h2 class="text-2xl font-bold">{{ user.username }}</h2>
+                    <p class="text-gray-600">Joined on {{ user.date_joined|date:"F j, Y" }}</p>
+                    <p class="mt-2">{{ user.profile.bio|default:"No bio provided" }}</p>
+                </div>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="space-y-4">
+                    {{ form|crispy }}
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-md text-white font-semibold hover:bg-blue-700">
+                        Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Completed Items</p>
+                    <p class="text-2xl font-bold">{{ user.completed_items.count }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                    <i class="fas fa-lightbulb text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Suggested Items</p>
+                    <p class="text-2xl font-bold">{{ user.created_items.count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent completions -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gray-50 py-4 px-6 border-b">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">Your Recent Completions</h2>
+                <a href="{% url 'user-completions' user.id %}" class="text-blue-600 hover:text-blue-800">View All</a>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            {% if user.completed_items.exists %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for completion in user.completed_items.all|slice:":4" %}
+                    <div class="bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                        <div class="aspect-w-16 aspect-h-9 bg-gray-200">
+                            <img src="{{ completion.photo.url }}" alt="{{ completion.bucket_item.title }}" class="object-cover w-full h-36">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold">{{ completion.bucket_item.title }}</h3>
+                            <p class="text-sm text-gray-500 mb-2">{{ completion.date_completed|date:"M j, Y" }}</p>
+                            <a href="{% url 'completion-detail' completion.id %}" class="text-blue-600 hover:text-blue-800 text-sm">View Details</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <p class="text-gray-500 mb-4">You haven't completed any bucket list items yet!</p>
+                    <a href="{% url 'bucket-list' %}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">
+                        Explore Bucket List
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

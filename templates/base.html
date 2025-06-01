@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Bucket List{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    {% block tailwind %}
+        {% load static %}
+        <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
+    {% endblock %}
+    
+    <!-- Custom CSS -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <header class="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'home' %}" class="text-2xl font-bold">
+                        <i class="fas fa-list-check mr-2"></i>
+                        Trigger
+                    </a>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="{% url 'home' %}" class="px-3 py-2 rounded-md text-white hover:bg-orange-400">Home</a>
+                    <a href="{% url 'bucket-list' %}" class="px-3 py-2 rounded-md text-white hover:bg-orange-400">Bucket List</a>
+                    
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'suggest-item' %}" class="px-3 py-2 rounded-md text-white hover:bg-orange-400">Suggest Item</a>
+                        
+                        {% if user.is_staff %}
+                            <a href="{% url 'pending-items' %}" class="px-3 py-2 rounded-md text-white hover:bg-orange-400">Admin</a>
+                        {% endif %}
+                        
+                        <!-- Desktop User dropdown -->
+                        <div class="relative" id="desktop-user-menu">
+                            <button class="flex items-center px-3 py-2 rounded-md hover:bg-orange-400">
+                                <span class="mr-1">{{ user.username }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden" id="desktop-user-dropdown">
+                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Profile</a>
+                                <a href="{% url 'user-completions' user.id %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">My Completions</a>
+                                <form method="post" action="{% url 'logout' %}" class="block">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center space-x-2">
+                            <a href="{% url 'login' %}" class="px-3 py-2 rounded-md text-white hover:bg-orange-400">Login</a>
+                            <a href="{% url 'register' %}" class="px-3 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700">Register</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile Navigation -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="flex items-center p-2 rounded-md hover:bg-orange-400">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu -->
+                <div id="mobile-menu" class="hidden md:hidden fixed left-0 right-0 top-[60px] bg-orange-500 shadow-lg z-50">
+                    <div class="container mx-auto px-4 py-2">
+                        {% if user.is_authenticated %}
+                            <div class="border-b border-orange-400 pb-2 mb-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-white font-semibold">{{ user.username }}</span>
+                                </div>
+                                <div class="mt-2 space-y-1">
+                                    <a href="{% url 'profile' %}" class="block px-3 py-2 rounded-md text-white hover:bg-orange-400">Profile</a>
+                                    <a href="{% url 'user-completions' user.id %}" class="block px-3 py-2 rounded-md text-white hover:bg-orange-400">My Completions</a>
+                                    <form method="post" action="{% url 'logout' %}" class="block">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full text-left px-3 py-2 rounded-md text-white hover:bg-orange-400">Logout</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="space-y-1">
+                            <a href="{% url 'home' %}" class="block px-3 py-2 rounded-md text-white hover:bg-orange-400">Home</a>
+                            <a href="{% url 'bucket-list' %}" class="block px-3 py-2 rounded-md text-white hover:bg-orange-400">Bucket List</a>
+                            
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'suggest-item' %}" class="block px-3 py-2 rounded-md text-white hover:bg-orange-400">Suggest Item</a>
+                                
+                                {% if user.is_staff %}
+                                    <a href="{% url 'pending-items' %}" class="block px-3 py-2 rounded-md text-white hover:bg-orange-400">Admin</a>
+                                {% endif %}
+                            {% else %}
+                                <div class="pt-2 space-y-1">
+                                    <a href="{% url 'login' %}" class="block px-3 py-2 rounded-md text-white hover:bg-orange-400">Login</a>
+                                    <a href="{% url 'register' %}" class="block px-3 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700">Register</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mx-auto px-4 mt-4">
+            {% for message in messages %}
+                <div class="p-4 mb-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Main content -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-4">My Bucket List</h3>
+                    <p class="text-gray-400">Create, share, and complete your life's adventures.</p>
+                </div>
+                
+                <div class="mb-6 md:mb-0">
+                    <h4 class="text-lg font-semibold mb-3">Quick Links</h4>
+                    <ul>
+                        <li class="mb-2"><a href="{% url 'home' %}" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'bucket-list' %}" class="text-gray-400 hover:text-white">Bucket List</a></li>
+                        {% if user.is_authenticated %}
+                            <li class="mb-2"><a href="{% url 'suggest-item' %}" class="text-gray-400 hover:text-white">Suggest Item</a></li>
+                        {% else %}
+                            <li class="mb-2"><a href="{% url 'register' %}" class="text-gray-400 hover:text-white">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-3">Contact</h4>
+                    <p class="text-gray-400 mb-2">Forgot your password?</p>
+                    <p class="text-gray-400">Contact admin: <a href="https://t.me/sai_jonov" class="text-blue-400 hover:text-blue-300">@sai_jonov on Telegram</a></p>
+                </div>
+            </div>
+            
+            <hr class="border-gray-700 my-6">
+            
+            <p class="text-center text-gray-400">© {% now "Y" %} My Bucket List. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script>
+        // Desktop user menu
+        const desktopUserMenu = document.getElementById('desktop-user-menu');
+        const desktopDropdown = document.getElementById('desktop-user-dropdown');
+        
+        if (desktopUserMenu) {
+            let timeoutId;
+            
+            desktopUserMenu.addEventListener('mouseenter', () => {
+                clearTimeout(timeoutId);
+                desktopDropdown.classList.remove('hidden');
+            });
+            
+            desktopUserMenu.addEventListener('mouseleave', () => {
+                timeoutId = setTimeout(() => {
+                    if (!desktopDropdown.matches(':hover')) {
+                        desktopDropdown.classList.add('hidden');
+                    }
+                }, 100);
+            });
+            
+            desktopDropdown.addEventListener('mouseenter', () => {
+                clearTimeout(timeoutId);
+            });
+            
+            desktopDropdown.addEventListener('mouseleave', () => {
+                desktopDropdown.classList.add('hidden');
+            });
+            
+            // Also handle click for touch devices
+            desktopUserMenu.querySelector('button').addEventListener('click', (e) => {
+                desktopDropdown.classList.toggle('hidden');
+                e.stopPropagation();
+            });
+        }
+        
+        // Mobile menu
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!mobileMenuButton.contains(e.target) && !mobileMenu.contains(e.target)) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+
+            // Prevent menu close when clicking inside
+            mobileMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (desktopDropdown && !desktopUserMenu?.contains(e.target)) {
+                desktopDropdown.classList.add('hidden');
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

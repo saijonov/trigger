@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Pending Bucket List Items{% endblock %}
+
+{% block content %}
+<div class="mb-12">
+    <h1 class="text-3xl font-bold mb-8">Pending Bucket List Items</h1>
+    
+    {% if items %}
+        <div class="grid grid-cols-1 gap-6">
+            {% for item in items %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-yellow-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                This item requires your approval to be added to the bucket list.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">{{ item.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ item.description }}</p>
+                    <div class="flex items-center mb-4">
+                        <span class="text-gray-500">Suggested by {{ item.created_by.username }}</span>
+                        <span class="mx-2">•</span>
+                        <span class="text-gray-500">{{ item.date_created|date:"F j, Y" }}</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="{% url 'approve-item' item.pk %}" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            Approve
+                        </a>
+                        <a href="{% url 'reject-item' item.pk %}" class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Are you sure you want to reject this item? This action cannot be undone.')">
+                            Reject
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">All caught up!</h2>
+            <p class="text-gray-600">There are no pending bucket list items waiting for approval.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

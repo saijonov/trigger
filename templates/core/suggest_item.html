@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Suggest Bucket List Item{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 py-6 px-8">
+            <h1 class="text-2xl font-bold text-white">Suggest a Bucket List Item</h1>
+        </div>
+        
+        <div class="p-8">
+            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            Your suggestion will be reviewed by an admin before being added to the bucket list.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="space-y-4">
+                    {{ form|crispy }}
+                </div>
+                
+                <div class="flex justify-end">
+                    <a href="{% url 'home' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 mr-3">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-orange-500 rounded-md text-white font-semibold hover:bg-orange-600">
+                        Submit Suggestion
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

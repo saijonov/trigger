@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ completion.bucket_item.title }}</h1>
+                <p class="text-gray-600">
+                    Completed by <a href="{% url 'user-completions' completion.user.id %}" class="text-blue-600 hover:text-blue-800">{{ completion.user.username }}</a>
+                    on {{ completion.date_completed|date:"F j, Y" }}
+                </p>
+            </div>
+            
+            {% if request.user.is_authenticated and request.user == completion.user or request.user.is_staff %}
+            <div class="flex space-x-2">
+                <a href="{% url 'completion-delete' completion.pk %}" 
+                   class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
+                    Delete
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">Completion Story</h2>
+            <p class="text-gray-700 whitespace-pre-line">{{ completion.description }}</p>
+        </div>
+
+        {% if completion.photo %}
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">Photo</h2>
+            <img src="{{ completion.photo.url }}" alt="Completion photo" class="rounded-lg max-h-96 object-cover">
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

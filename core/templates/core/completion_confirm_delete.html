@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4 text-red-600">Delete Completion</h2>
+    
+    <p class="mb-4 text-gray-700">
+        Are you sure you want to delete your completion of "{{ object.bucket_item.title }}"?
+        This action cannot be undone.
+    </p>
+    
+    <form method="post" class="space-x-4">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+            Confirm Delete
+        </button>
+        <a href="{% url 'completion-detail' object.pk %}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded inline-block">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %} 
