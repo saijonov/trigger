@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_tailwind',
     'tailwind',
-    # 'theme',  # Temporarily comment this out
+    'theme',
     
     # Local
     'core',
@@ -99,7 +99,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -121,6 +123,11 @@ CRISPY_TEMPLATE_PACK = "tailwind"
 
 # Tailwind 
 TAILWIND_APP_NAME = 'theme'
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+NPM_BIN_PATH = 'node'
 
 # Security settings for production
 if not DEBUG:
