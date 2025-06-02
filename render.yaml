@@ -3,16 +3,81 @@ services:
     name: bucket-list
     env: python
     buildCommand: |
+      # Install Node.js 18
       curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
       apt-get install -y nodejs
+
+      # Install Python dependencies
       pip install -r requirements.txt
+
+      # Setup Tailwind
       rm -rf theme/
-      python manage.py tailwind init theme --no-input
+      mkdir -p theme/static_src/src/styles
+      mkdir -p theme/static/css/dist
+
+      # Create necessary Tailwind files
+      echo '@tailwind base;
+      @tailwind components;
+      @tailwind utilities;' > theme/static_src/src/styles/tailwind.css
+
+      # Create package.json
+      cat > theme/static_src/package.json << 'EOF'
+      {
+        "name": "theme",
+        "version": "3.8.0",
+        "scripts": {
+          "build": "./node_modules/.bin/tailwindcss --postcss -i ./src/styles/tailwind.css -o ../static/css/dist/styles.css --minify"
+        },
+        "devDependencies": {
+          "@tailwindcss/aspect-ratio": "^0.4.2",
+          "@tailwindcss/forms": "^0.5.7",
+          "@tailwindcss/typography": "^0.5.10",
+          "autoprefixer": "^10.4.17",
+          "postcss": "^8.4.35",
+          "postcss-import": "^16.0.0",
+          "postcss-nested": "^6.0.1",
+          "postcss-simple-vars": "^7.0.1",
+          "tailwindcss": "^3.4.1"
+        }
+      }
+      EOF
+
+      # Create tailwind.config.js
+      cat > theme/static_src/tailwind.config.js << 'EOF'
+      /** @type {import('tailwindcss').Config} */
+      module.exports = {
+        content: [
+          '../templates/**/*.html',
+          '../../templates/**/*.html',
+          '../../**/templates/**/*.html',
+        ],
+        theme: {
+          extend: {},
+        },
+        plugins: [],
+      }
+      EOF
+
+      # Create postcss.config.js
+      cat > theme/static_src/postcss.config.js << 'EOF'
+      module.exports = {
+        plugins: {
+          'postcss-import': {},
+          'tailwindcss/nesting': {},
+          tailwindcss: {},
+          autoprefixer: {},
+        }
+      }
+      EOF
+
+      # Enable theme app in settings
       sed -i 's/# '"'"'theme'"'"',/'"'"'theme'"'"',/g' bucket_list/settings.py
-      python manage.py tailwind install
-      cd theme/static_src && npm install
-      cd ../.. && python manage.py tailwind build
-      python manage.py collectstatic --noinput
+
+      # Install npm dependencies and build Tailwind
+      cd theme/static_src && npm install && npm run build
+
+      # Collect static files
+      cd ../.. && python manage.py collectstatic --noinput
     startCommand: gunicorn bucket_list.wsgi:application
     envVars:
       - key: PYTHON_VERSION
